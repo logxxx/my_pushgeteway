@@ -34,6 +34,8 @@ import (
 	dto "github.com/prometheus/client_model/go"
 
 	"github.com/prometheus/pushgateway/storage"
+
+	go_log "log"
 )
 
 const (
@@ -58,6 +60,9 @@ func Push(
 	var mtx sync.Mutex // Protects ps.
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		go_log.Printf("here Push")
+
 		job := route.Param(r.Context(), "job")
 		if jobBase64Encoded {
 			var err error
@@ -76,12 +81,14 @@ func Push(
 			level.Debug(logger).Log("msg", "failed to parse URL", "url", labelsString, "err", err.Error())
 			return
 		}
+		go_log.Printf("labels:%v", labels)
 		if job == "" {
 			http.Error(w, "job name is required", http.StatusBadRequest)
 			level.Debug(logger).Log("msg", "job name is required")
 			return
 		}
 		labels["job"] = job
+		go_log.Printf("job:%v", job)
 
 		var metricFamilies map[string]*dto.MetricFamily
 		ctMediatype, ctParams, ctErr := mime.ParseMediaType(r.Header.Get("Content-Type"))

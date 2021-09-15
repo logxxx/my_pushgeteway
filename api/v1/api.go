@@ -26,6 +26,8 @@ import (
 
 	"github.com/prometheus/pushgateway/handler"
 	"github.com/prometheus/pushgateway/storage"
+
+	go_log "log"
 )
 
 type status string
@@ -146,6 +148,8 @@ func (api *API) metrics(w http.ResponseWriter, r *http.Request) {
 		}
 		res = append(res, metricResponse)
 	}
+
+	go_log.Printf("metrics:%+v", res)
 
 	api.respond(w, res)
 }
